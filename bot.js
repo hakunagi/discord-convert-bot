@@ -57,13 +57,27 @@ async function convert(id, msg) {
 
 async function convertAll(msg) {
   flag.all = !0
-  const sendText = (await converter.mhr(await converter.cjp(await converter.kbn(await converter.nml(msg.content)))))
-    .replace('アット、、、、マーーーーーーーーーーク', '@')
-    .replace('識別コード【ａｔ：Ｍａｒｋ】', '@')
-    .replace('†', '@')
+  let sendText
+  try {
+    sendText = (await converter.mhr(await converter.cjp(await converter.kbn(await converter.nml(msg.content)))))
+      .replace('アット、、、、マーーーーーーーーーーク', '@')
+      .replace('識別コード【ａｔ：Ｍａｒｋ】', '@')
+      .replace('†', '@')
+
+  } catch (error) {
+    sendText = (await converter.mhr(await converter.cjp(await converter.kbn(msg.content))))
+      .replace('アット、、、、マーーーーーーーーーーク', '@')
+      .replace('識別コード【ａｔ：Ｍａｒｋ】', '@')
+      .replace('†', '@')
+  }
 
   if (!sendText) return
-  const username = (await converter.mhr(await converter.cjp(await converter.kbn(await converter.nml((msg.member.nickname || msg.author.username))))));
+  let username
+  try {
+    username = (await converter.mhr(await converter.cjp(await converter.kbn(await converter.nml((msg.member.nickname || msg.author.username))))));
+  } catch (error) {
+    username = (await converter.mhr(await converter.cjp(await converter.kbn((msg.member.nickname || msg.author.username)))));
+  }
   const avatarURL = msg.author.avatarURL()
   const webhook = await (async () => {
     for (const [, webhook] of (await msg.channel.fetchWebhooks())) {
