@@ -28,12 +28,174 @@ async function convertCjp(text) {
 
 const convertKbn = require('./convertKbn');
 
-const nomlish = require('nomlish');
+const convertNml = require('nomlish');
+
+const convertMhr = require('genhera');
+
+async function functionCjp (msg,role) {
+  for (const [id, ] of (await role.members)) {
+    if (msg.author.id === id) {
+      const sendText = await convertCjp(msg.content);
+      if (!sendText) return
+      const username = await convertCjp((msg.member.nickname || msg.author.username));
+      const avatarURL = msg.author.avatarURL()
+      const webhook = await (async () => {
+        for (const [, webhook] of (await msg.channel.fetchWebhooks())) {
+          if (webhook.name === '怪レい日本语') return webhook
+        }
+      })() || await msg.channel.createWebhook('怪レい日本语')
+      await webhook.send(sendText, {
+        username,
+        avatarURL
+      })
+      try {
+        await msg.delete()
+      } catch (e) {}
+
+      // Submarin
+      if (msg.guild.id === '702430385916608592') {
+        await client.channels.cache.get('747087748535681074')
+          .send(msg.content.replace('@', '＠'))
+      }
+      // 携帯bot墓場
+      if (msg.guild.id === '769902624291553341') {
+        await client.channels.cache.get('807516484548689930')
+          .send(msg.content.replace('@', '＠'))
+      }
+      return;
+    }
+  }
+}
+
+async function functionKbn (msg,role){
+  for (const [id] of await role.members) {
+    if (msg.author.id === id) {
+      const sendText = convertKbn(msg.content)
+      if (!sendText) return
+      const username = convertKbn((msg.member.nickname || msg.author.username))
+      const avatarURL = msg.author.avatarURL()
+      const webhook =
+        (await (async () => {
+          for (const [,
+              webhook
+            ] of await msg.channel.fetchWebhooks()) {
+            if (webhook.name === '古文') return webhook
+          }
+        })()) || (await msg.channel.createWebhook('古文'))
+      await webhook.send(sendText, {
+        username,
+        avatarURL
+      })
+      try {
+        await msg.delete()
+      } catch (e) {}
+
+      // Submarin
+      if (msg.guild.id === '702430385916608592') {
+        await client.channels.cache.get('747087748535681074')
+          .send(msg.content.replace('@', '＠'))
+      }
+      // 携帯bot墓場
+      if (msg.guild.id === '769902624291553341') {
+        await client.channels.cache.get('807516484548689930')
+          .send(msg.content.replace('@', '＠'))
+      }
+      return;
+    }
+  }
+}
+
+async function functionNml (msg,role){
+  for (const [id] of await role.members) {
+    if (msg.author.id === id) {
+      const sendText = (await convertNml.translate(msg.content))
+        .replace('アット、、、、マーーーーーーーーーーク', '@')
+        .replace('識別コード【ａｔ：Ｍａｒｋ】', '@')
+        .replace('†', '@')
+        if (!sendText) return
+      const username = (await convertNml.translate((msg.member.nickname || msg.author.username)))
+      const avatarURL = msg.author.avatarURL()
+      const webhook =
+        (await (async () => {
+          for (const [,
+              webhook
+            ] of await msg.channel.fetchWebhooks()) {
+            if (webhook.name === 'ノムリッシュ')
+              return webhook
+          }
+        })()) ||
+        (await msg.channel.createWebhook('ノムリッシュ'))
+      await webhook.send(sendText, {
+        username,
+        avatarURL
+      })
+      try {
+        await msg.delete()
+      } catch (e) {}
+
+      // Submarin
+      if (msg.guild.id === '702430385916608592') {
+        await client.channels.cache.get('747087748535681074')
+          .send(msg.content.replace('@', '＠'))
+      }
+      // 携帯bot墓場
+      if (msg.guild.id === '769902624291553341') {
+        await client.channels.cache.get('807516484548689930')
+          .send(msg.content.replace('@', '＠'))
+      }
+      return;
+    }
+  }
+}
+
+async function functionMhr (msg,role){
+  for (const [id] of await role.members) {
+    if (msg.author.id === id) {
+      const sendText = convertMhr.generate(msg.content)
+      if (!sendText) return
+      const username = convertMhr.generate((msg.member.nickname || msg.author.username))
+      const avatarURL = msg.author.avatarURL()
+      const webhook =
+        (await (async () => {
+          for (const [,
+              webhook
+            ] of await msg.channel.fetchWebhooks()) {
+            if (webhook.name === 'メンヘラ') return webhook
+          }
+        })()) || (await msg.channel.createWebhook('メンヘラ'))
+      await webhook.send(sendText, {
+        username,
+        avatarURL
+      })
+      try {
+        await msg.delete()
+      } catch (e) {}
+
+      // Submarin
+      if (msg.guild.id === '702430385916608592') {
+        await client.channels.cache.get('747087748535681074')
+          .send(msg.content.replace('@', '＠'))
+      }
+      // 携帯bot墓場
+      if (msg.guild.id === '769902624291553341') {
+        await client.channels.cache.get('807516484548689930')
+          .send(msg.content.replace('@', '＠'))
+      }
+      return;
+    }
+  }
+
+}
 
 client.on('message', async msg => {
+
+  if (msg.author.bot) return
+  if (msg.attachments.size > 0) return
+
   let cjp = false,
     kbn = false,
-    nml = false;
+    nml = false,
+    mhr = false;
 
   if (msg.content.match(/cjp>/)) {
     cjp = true;
@@ -47,118 +209,30 @@ client.on('message', async msg => {
     nml = true;
     msg.content = msg.content.replace(/nml>|nml> /g, "")
   }
-
-  if (msg.author.bot) return
-  if (msg.attachments.size > 0) return
+  if (msg.content.match(/mhr>/)) {
+    mhr = true;
+    msg.content = msg.content.replace(/mhr>|mhr> /g, "")
+  }
   for (const [, role] of (await msg.guild.roles.fetch()).cache) {
 
     if (role.name === '怪レい日本语' || cjp) {
-      for (const [id, ] of (await role.members)) {
-        if (msg.author.id === id) {
-          const sendText = await convertCjp(msg.content);
-          const username = await convertCjp((msg.member.nickname || msg.author.username));
-          const avatarURL = msg.author.avatarURL()
-          const webhook = await (async () => {
-            for (const [, webhook] of (await msg.channel.fetchWebhooks())) {
-              if (webhook.name === '怪レい日本语') return webhook
-            }
-          })() || await msg.channel.createWebhook('怪レい日本语')
-          await webhook.send(sendText, {
-            username,
-            avatarURL
-          })
-          try {
-            await msg.delete()
-          } catch (e) {}
-
-          // Submarin
-          if (msg.guild.id === '702430385916608592') {
-            await client.channels.cache.get('747087748535681074')
-              .send(msg.content.replace('@', '＠'))
-          }
-
-          // 携帯bot墓場
-          if (msg.guild.id === '769902624291553341') {
-            await client.channels.cache.get('807516484548689930')
-              .send(msg.content.replace('@', '＠'))
-          }
-          break;
-        }
-      }
+      cjp = false;
+      await functionCjp(msg,role);
     }
     if (role.name === '古文' || kbn) {
-      for (const [id] of await role.members) {
-        if (msg.author.id === id) {
-          const sendText = convertKbn(msg.content)
-          const username = convertKbn((msg.member.nickname || msg.author.username))
-          const avatarURL = msg.author.avatarURL()
-          const webhook =
-            (await (async () => {
-              for (const [,
-                  webhook
-                ] of await msg.channel.fetchWebhooks()) {
-                if (webhook.name === '古文') return webhook
-              }
-            })()) || (await msg.channel.createWebhook('古文'))
-          await webhook.send(sendText, {
-            username,
-            avatarURL
-          })
-          try {
-            await msg.delete()
-          } catch (e) {}
-
-          // Submarin
-          if (msg.guild.id === '702430385916608592') {
-            await client.channels.cache
-              .get('747087748535681074')
-              .send(msg.content.replace('@', '＠'))
-          }
-
-          break;
-        }
-      }
+      kbn = false;
+      await functionKbn(msg,role);
     }
     if (role.name === 'ノムリッシュ' || nml) {
-      for (const [id] of await role.members) {
-        if (msg.author.id === id) {
-          const sendText = (await nomlish.translate(msg.content))
-            .replace('アット、、、、マーーーーーーーーーーク', '@')
-            .replace('識別コード【ａｔ：Ｍａｒｋ】', '@')
-            .replace('†', '@')
-          const username = (await nomlish.translate((msg.member.nickname || msg.author.username)))
-          const avatarURL = msg.author.avatarURL()
-          const webhook =
-            (await (async () => {
-              for (const [,
-                  webhook
-                ] of await msg.channel.fetchWebhooks()) {
-                if (webhook.name === 'ノムリッシュ')
-                  return webhook
-              }
-            })()) ||
-            (await msg.channel.createWebhook('ノムリッシュ'))
-          await webhook.send(sendText, {
-            username,
-            avatarURL
-          })
-          try {
-            await msg.delete()
-          } catch (e) {}
-
-          // Submarin
-          if (msg.guild.id === '702430385916608592') {
-            await client.channels.cache
-              .get('747087748535681074')
-              .send(msg.content.replace('@', '＠'))
-          }
-
-          break;
-        }
-      }
+      nml = false;
+      await functionNml(msg,role)
     }
-    return;
+    if (role.name === 'メンヘラ' || mhr) {
+      mhr = false;
+      await functionMhr(msg,role)
+    }
+
   }
 })
 
-client.login();
+client.login("ODEzNjM1MzMyMTUwMTMyNzY3.YDSK8w.wsxgilCnCjz9npE6c2YGB8d4uPU");
