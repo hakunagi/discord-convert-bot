@@ -151,4 +151,4 @@ client.on('message', async msg => {
   }
 })
 
-client.login("ODEzNjk3Mjk2MTk3MzUzNTQy.YDTEqQ.ea7_yc2Rt0dkLQpUa-D3NieqkLY");
+client.login();
