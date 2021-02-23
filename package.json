@@ -14,11 +14,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cjp": "^1.0.1",
-    "discord.js": "^12.5.1",
-    "genhera": "^1.0.0",
-    "libxmljs": "^0.19.7",
-    "node-pre-gyp": "^0.17.0",
+    "discord.js": "12.x",
+    "cjp": "1.x",
+    "genhera": "1.x",
     "nomlish": "^0.1.0"
-  }
+}
 }
