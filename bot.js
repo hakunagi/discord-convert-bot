@@ -111,11 +111,34 @@ async function convertAll(msg) {
   return;
 }
 
+async function noConvert(msg) {
+  msg.content = msg.content.replace(/ncv>|ncv> /g, "")
+  const sendText = msg.content
+  if (!sendText) return
+  const username = (msg.member.nickname || msg.author.username)
+  const avatarURL = msg.author.avatarURL()
+  const webhook = await (async () => {
+    for (const [, webhook] of (await msg.channel.fetchWebhooks())) {
+      if (webhook.name === '変換Bot') return webhook
+    }
+  })() || await msg.channel.createWebhook('変換Bot')
+  await webhook.send(sendText, {
+    username,
+    avatarURL
+  })
+  try {
+    await msg.delete()
+  } catch (e) {}
+  return;
+}
+
+
 let flag;
 
 client.on('message', async msg => {
 
   if (msg.author.bot || msg.attachments.size > 0) return
+  if (msg.content.match(/ncv>/)){await noConvert(msg);return}
 
   flag = {
     all: !1,
